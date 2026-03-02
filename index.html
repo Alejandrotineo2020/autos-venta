@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoVentas DO • Catálogo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+  <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center text-2xl">🚗</div>
+        <span class="text-2xl font-bold tracking-tighter">AutoVentas DO</span>
+      </div>
+    
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-6 py-10">
+    <h1 class="text-5xl font-bold tracking-tighter mb-2">Catálogo de Autos</h1>
+    <p class="text-zinc-400 text-lg">Encuentra tu próximo vehículo en República Dominicana</p>
+
+    <div class="my-8">
+      <input id="search" type="text" placeholder="Buscar por m arca o modelo..." 
+             class="w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 focus:outline-none focus:border-red-500 text-lg"
+             onkeyup="filterCars()">
+    </div>
+
+    <div id="car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+  </main>
+
+
+  <div id="detail-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-zinc-900 rounded-3xl max-w-lg w-full max-h-[90dvh] overflow-hidden flex flex-col">
+      <div class="p-6 border-b border-zinc-700 flex justify-between items-center">
+        <h2 id="detail-title" class="text-2xl font-bold"></h2>
+        <button onclick="closeDetail()" class="text-3xl text-zinc-400 hover:text-white">×</button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        <img id="detail-img" class="w-full h-64 object-cover rounded-2xl mb-5" alt="">
+        <div class="flex gap-6 my-6 text-zinc-300">
+          <div><strong id="detail-year"></strong> Año</div>
+          <div><strong id="detail-km"></strong> km</div>
+          <div class="text-red-400"><strong id="detail-price"></strong></div>
+        </div>
+        <p id="detail-desc" class="text-zinc-300 leading-relaxed"></p>
+      </div>
+      <div class="p-6 border-t border-zinc-700">
+        <button onclick="showPaymentForm()" 
+                class="w-full py-5 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold text-xl flex items-center justify-center gap-3">
+          <i class="fas fa-credit-card"></i> Comprar con Tarjeta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pago -->
+  <div id="payment-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-zinc-900 rounded-3xl w-full max-w-lg max-h-[90dvh] overflow-hidden flex flex-col border border-zinc-700">
+      <div class="p-6 border-b border-zinc-700 flex justify-between items-center">
+        <h3 class="text-xl font-bold">Pago con Tarjeta</h3>
+        <button onclick="closePaymentModal()" class="text-3xl text-zinc-400 hover:text-white">×</button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        <p class="text-zinc-400 mb-6 text-sm">Transacción simulada</p>
+        <form id="payment-form" onsubmit="submitPayment(event)">
+          <input type="hidden" id="pay-car-id">
+          <input type="hidden" id="pay-car-name">
+          <div class="mb-5">
+            <label class="block text-sm text-zinc-400 mb-2">Nombre completo *</label>
+            <input id="buyer-name" type="text" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">
+          </div>
+          <div class="mb-5">
+            <label class="block text-sm text-zinc-400 mb-2">Teléfono / WhatsApp *</label>
+            <input id="buyer-phone" type="tel" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">
+          </div>
+          <!-- campos de tarjeta -->
+          <div class="mb-5">
+            <label class="block text-sm text-zinc-400 mb-2">Número de tarjeta *</label>
+            <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono">
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-5">
+            <div><label class="block text-sm text-zinc-400 mb-2">Vencimiento *</label><input type="text" placeholder="MM/AA" maxlength="5" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono"></div>
+            <div><label class="block text-sm text-zinc-400 mb-2">CVC *</label><input type="text" placeholder="123" maxlength="4" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono"></div>
+          </div>
+          <div class="mb-5">
+            <label class="block text-sm text-zinc-400 mb-2">Nombre titular *</label>
+            <input type="text" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm text-zinc-400 mb-2">Cantidad</label>
+            <select id="quantity" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="mb-6 p-4 bg-zinc-800 rounded-2xl flex justify-between text-lg">
+            <span>Total:</span>
+            <span id="total-price" class="font-bold text-green-400"></span>
+          </div>
+        </form>
+      </div>
+      <div class="p-6 border-t border-zinc-700">
+        <button type="submit" form="payment-form" class="w-full py-5 bg-green-600 hover:bg-green-700 rounded-2xl font-bold text-lg">Pagar ahora</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/catalog.js"></script>
+</body>
+</html>
